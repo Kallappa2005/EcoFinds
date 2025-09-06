@@ -1,22 +1,46 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FiUser, FiMail, FiPhone, FiMapPin, FiEdit, FiStar, FiShield, FiHeart } from 'react-icons/fi'
 import { motion } from 'framer-motion'
 import StatsCards from '../components/profile/StatsCards'
 import RecentActivity from '../components/profile/RecentActivity'
+import { useUserData } from '../context/userDataUtils'
+import toast from 'react-hot-toast'
 
 const ProfilePage = () => {
+  const { user, isAuthenticated, updateUserProfile } = useUserData()
   const [isEditing, setIsEditing] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [profile, setProfile] = useState({
-    name: 'Alex Johnson',
-    email: 'alex.johnson@email.com',
-    phone: '+91 9876543210',
-    location: 'Mumbai, Maharashtra',
-    bio: 'Passionate about sustainable living and helping others find great second-hand products! 🌱',
-    joinDate: 'January 2024',
-    rating: 4.8,
-    totalReviews: 127,
-    verified: true
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    bio: '',
+    joinDate: '',
+    rating: 0,
+    totalReviews: 0,
+    verified: false
   })
+
+  // Load user profile data
+  useEffect(() => {
+    if (user && isAuthenticated) {
+      setProfile({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        location: user.location || '',
+        bio: user.bio || 'Welcome to EcoFinds! Update your bio to tell others about your sustainability journey.',
+        joinDate: new Date(user.joinDate || user.createdAt).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long' 
+        }),
+        rating: user.rating || 0,
+        totalReviews: user.totalReviews || 0,
+        verified: user.verified || false
+      })
+    }
+  }, [user, isAuthenticated])
 
   const badges = [
     { name: 'Eco Warrior', icon: '🌱', earned: true },
@@ -50,10 +74,31 @@ const ProfilePage = () => {
     }
   ]
 
-  const handleSave = () => {
-    setIsEditing(false)
-    // Handle profile update
-    console.log('Profile updated:', profile)
+  const handleSave = async () => {
+    try {
+      setIsLoading(true)
+      const updatedUser = await updateUserProfile({
+        name: profile.name,
+        email: profile.email,
+        phone: profile.phone,
+        location: profile.location,
+        bio: profile.bio
+      })
+      
+      // Update local profile state with the response
+      setProfile(prev => ({
+        ...prev,
+        ...updatedUser
+      }))
+      
+      setIsEditing(false)
+      toast.success('Profile updated successfully!')
+    } catch (error) {
+      console.error('Failed to update profile:', error)
+      toast.error('Failed to update profile. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -68,7 +113,7 @@ const ProfilePage = () => {
           {/* Profile Picture */}
           <div className="relative">
             <div className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-4xl font-bold">
-              AJ
+              {profile.name ? profile.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
             </div>
             {profile.verified && (
               <div className="absolute -bottom-2 -right-2 bg-blue-500 text-white p-2 rounded-full">
@@ -81,7 +126,17 @@ const ProfilePage = () => {
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{profile.name}</h1>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={profile.name}
+                    onChange={(e) => setProfile({...profile, name: e.target.value})}
+                    className="text-3xl font-bold text-gray-900 border border-gray-300 rounded px-2 py-1 bg-white"
+                    placeholder="Enter your name"
+                  />
+                ) : (
+                  <h1 className="text-3xl font-bold text-gray-900">{profile.name}</h1>
+                )}
                 <p className="text-gray-600">Member since {profile.joinDate}</p>
               </div>
               <button
@@ -123,7 +178,8 @@ const ProfilePage = () => {
                     type="email"
                     value={profile.email}
                     onChange={(e) => setProfile({...profile, email: e.target.value})}
-                    className="border border-gray-300 rounded px-2 py-1 flex-1"
+                    className="border border-gray-300 rounded px-2 py-1 flex-1 text-gray-800"
+                    placeholder="Enter your email"
                   />
                 ) : (
                   <span>{profile.email}</span>
@@ -136,7 +192,8 @@ const ProfilePage = () => {
                     type="tel"
                     value={profile.phone}
                     onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                    className="border border-gray-300 rounded px-2 py-1 flex-1"
+                    className="border border-gray-300 rounded px-2 py-1 flex-1 text-gray-800"
+                    placeholder="Enter your phone number"
                   />
                 ) : (
                   <span>{profile.phone}</span>
@@ -149,7 +206,8 @@ const ProfilePage = () => {
                     type="text"
                     value={profile.location}
                     onChange={(e) => setProfile({...profile, location: e.target.value})}
-                    className="border border-gray-300 rounded px-2 py-1 flex-1"
+                    className="border border-gray-300 rounded px-2 py-1 flex-1 text-gray-800"
+                    placeholder="Enter your location"
                   />
                 ) : (
                   <span>{profile.location}</span>
@@ -167,14 +225,16 @@ const ProfilePage = () => {
               <textarea
                 value={profile.bio}
                 onChange={(e) => setProfile({...profile, bio: e.target.value})}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 text-gray-800"
                 rows={3}
+                placeholder="Tell us about yourself and your sustainability journey..."
               />
               <button
                 onClick={handleSave}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                disabled={isLoading}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save Changes
+                {isLoading ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           ) : (
@@ -195,7 +255,7 @@ const ProfilePage = () => {
         >
           <h2 className="text-xl font-bold text-gray-900 mb-6">Badges & Achievements</h2>
           <div className="space-y-3">
-            {badges.map((badge, index) => (
+            {badges.map((badge) => (
               <div
                 key={badge.name}
                 className={`flex items-center p-3 rounded-lg ${

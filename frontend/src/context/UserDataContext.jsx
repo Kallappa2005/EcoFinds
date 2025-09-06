@@ -244,6 +244,18 @@ export const UserDataProvider = ({ children }) => {
     };
   };
 
+  // Update user profile
+  const updateUserProfile = async (profileData) => {
+    try {
+      const response = await userAPI.updateProfile(profileData);
+      setUser(response.data.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
+  };
+
   const value = {
     isAuthenticated,
     isLoading,
@@ -256,7 +268,8 @@ export const UserDataProvider = ({ children }) => {
     addPurchasedProduct,
     updateProductStatus,
     updateTransactionStatus,
-    calculateEcoImpact
+    calculateEcoImpact,
+    updateUserProfile
   };
 
   return (
