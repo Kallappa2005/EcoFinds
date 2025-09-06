@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiCheck } from 'react-icons/fi'
 import toast from 'react-hot-toast'
+import { useUserData } from '../context/userDataUtils'
 
 const SignUp = () => {
   const navigate = useNavigate()
@@ -14,6 +15,16 @@ const SignUp = () => {
     password: '',
     terms: false
   })
+
+  const { register } = useUserData()
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -37,11 +48,8 @@ const SignUp = () => {
     setIsLoading(true)
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Here you would typically make an API call to register the user
-      console.log('Sign up:', formData)
+      // Call register from context
+      await register(formData.fullName, formData.email, formData.password)
       
       toast.success('Account created successfully! Please sign in.')
       
@@ -49,7 +57,8 @@ const SignUp = () => {
       navigate('/signin')
       
     } catch (error) {
-      toast.error('Something went wrong. Please try again.')
+      console.error(error)
+      toast.error(error.response?.data?.message || 'Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -164,9 +173,10 @@ const SignUp = () => {
                   <FiUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
+                    name="fullName"
                     value={formData.fullName}
-                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-300 outline-none"
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-300 outline-none text-gray-800"
                     placeholder="Enter your full name"
                     required
                   />
@@ -183,9 +193,10 @@ const SignUp = () => {
                   <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="email"
+                    name="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-300 outline-none"
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-300 outline-none text-gray-800"
                     placeholder="Enter your email"
                     required
                   />
@@ -202,10 +213,12 @@ const SignUp = () => {
                   <FiLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type={showPassword ? "text" : "password"}
+                    name="password"
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-300 outline-none"
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-300 outline-none text-gray-800"
                     placeholder="Create a strong password"
+                    autoComplete="new-password"
                     required
                   />
                   <button
@@ -226,9 +239,10 @@ const SignUp = () => {
               >
                 <label className="flex items-start gap-3">
                   <input 
-                    type="checkbox" 
+                    type="checkbox"
+                    name="terms" 
                     checked={formData.terms}
-                    onChange={(e) => setFormData({...formData, terms: e.target.checked})}
+                    onChange={handleChange}
                     className="w-5 h-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 mt-0.5"
                     required
                   />

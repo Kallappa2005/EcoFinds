@@ -19,11 +19,17 @@ connectDB();
 
 const app = express();
 
-// Body parser
-app.use(express.json());
+// Body parser with increased limits for image uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Enable CORS
-app.use(cors());
+// Enable CORS with specific options
+app.use(cors({
+    origin: 'http://localhost:5173', // Vite's default port
+    credentials: true, // Allow cookies to be sent with requests
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Security middleware
 if (process.env.NODE_ENV === 'production') {
@@ -47,9 +53,11 @@ if (process.env.NODE_ENV === 'production') {
     app.use(morgan('dev'));
 }
 
-// Mount routers - these will be created later
-// app.use('/api/v1/auth', require('./routes/authRoutes'));
-// app.use('/api/v1/users', require('./routes/userRoutes'));
+// Mount routers
+app.use('/api/v1/auth', require('./routes/authRoutes'));
+app.use('/api/v1/users', require('./routes/userRoutes'));
+app.use('/api/v1/products', require('./routes/productRoutes'));
+app.use('/api/v1/transactions', require('./routes/transactionRoutes'));
 
 // Basic route for testing
 app.get('/', (req, res) => {

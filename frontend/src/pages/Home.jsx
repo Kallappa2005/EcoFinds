@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FiCheck, FiStar, FiShield, FiHeart, FiTrendingUp, FiUsers, FiShoppingCart, FiMapPin } from 'react-icons/fi'
-import { useUserData } from '../context/UserDataContext'
+import { useUserData } from '../context/userDataUtils'
 import { toast } from 'react-hot-toast'
 
 const Feature = ({ title, desc, icon: Icon, delay = 0 }) => (

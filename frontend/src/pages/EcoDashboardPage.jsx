@@ -2,7 +2,7 @@ import { useState } from 'react'
 import EcoImpact from '../components/eco-dashboard/EcoImpact'
 import { FiTrendingUp, FiUsers, FiTarget, FiShoppingBag, FiDollarSign, FiEye, FiCalendar, FiMapPin } from 'react-icons/fi'
 import { motion } from 'framer-motion'
-import { useUserData } from '../context/UserDataContext'
+import { useUserData } from '../context/userDataUtils'
 
 const EcoDashboardPage = () => {
   const { userData } = useUserData()

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiSearch, FiFilter, FiGrid, FiList, FiMapPin, FiUser, FiCalendar, FiHeart, FiShoppingCart, FiEye, FiStar, FiX } from 'react-icons/fi'
-import { useUserData } from '../context/UserDataContext'
+import { useUserData } from '../context/userDataUtils'
 import { toast } from 'react-hot-toast'
 
 const Products = () => {
@@ -194,6 +194,14 @@ const Products = () => {
       }
     })
 
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setPurchaseData({
+      ...purchaseData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
   const handlePurchase = (product) => {
     setSelectedProduct(product)
     setShowPurchaseModal(true)
@@ -267,7 +275,8 @@ const Products = () => {
                   placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
+                  name="searchTerm"
                 />
               </div>
             </div>
@@ -287,7 +296,7 @@ const Products = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-gray-800 bg-white appearance-none cursor-pointer"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
@@ -297,7 +306,7 @@ const Products = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-gray-800 bg-white appearance-none cursor-pointer"
               >
                 {sortOptions.map(option => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -340,7 +349,7 @@ const Products = () => {
                   <select
                     value={selectedCondition}
                     onChange={(e) => setSelectedCondition(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-gray-800 bg-white appearance-none cursor-pointer"
                   >
                     {conditions.map(condition => (
                       <option key={condition} value={condition}>{condition}</option>
@@ -358,14 +367,14 @@ const Products = () => {
                       placeholder="Min"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-gray-800"
                     />
                     <input
                       type="number"
                       placeholder="Max"
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 100000])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-gray-800"
                     />
                   </div>
                 </div>
@@ -677,9 +686,10 @@ const Products = () => {
                       <input
                         type="text"
                         required
-                        value={purchaseData.buyerName}
-                        onChange={(e) => setPurchaseData({...purchaseData, buyerName: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        name="fullName"
+                        value={purchaseData.fullName || ''}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                         placeholder="Enter your full name"
                       />
                     </div>
@@ -689,9 +699,10 @@ const Products = () => {
                       <input
                         type="tel"
                         required
-                        value={purchaseData.buyerPhone}
-                        onChange={(e) => setPurchaseData({...purchaseData, buyerPhone: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        name="phone"
+                        value={purchaseData.phone || ''}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                         placeholder="Enter your phone number"
                       />
                     </div>
@@ -701,9 +712,10 @@ const Products = () => {
                       <input
                         type="email"
                         required
-                        value={purchaseData.buyerEmail}
-                        onChange={(e) => setPurchaseData({...purchaseData, buyerEmail: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        name="email"
+                        value={purchaseData.email || ''}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                         placeholder="Enter your email"
                       />
                     </div>
@@ -712,9 +724,10 @@ const Products = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
                       <textarea
                         required
-                        value={purchaseData.deliveryAddress}
-                        onChange={(e) => setPurchaseData({...purchaseData, deliveryAddress: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        name="address"
+                        value={purchaseData.address || ''}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                         placeholder="Enter your delivery address"
                         rows="3"
                       />
@@ -727,10 +740,10 @@ const Products = () => {
                           <input
                             type="radio"
                             id="delivery"
-                            name="deliveryOption"
+                            name="pickupPreference"
                             value="delivery"
-                            checked={purchaseData.deliveryOption === 'delivery'}
-                            onChange={(e) => setPurchaseData({...purchaseData, deliveryOption: e.target.value})}
+                            checked={purchaseData.pickupPreference === 'delivery'}
+                            onChange={handleInputChange}
                             className="text-green-600 focus:ring-green-500"
                           />
                           <label htmlFor="delivery" className="ml-2 text-sm text-gray-700">
@@ -741,10 +754,10 @@ const Products = () => {
                           <input
                             type="radio"
                             id="pickup"
-                            name="deliveryOption"
+                            name="pickupPreference"
                             value="pickup"
-                            checked={purchaseData.deliveryOption === 'pickup'}
-                            onChange={(e) => setPurchaseData({...purchaseData, deliveryOption: e.target.value})}
+                            checked={purchaseData.pickupPreference === 'pickup'}
+                            onChange={handleInputChange}
                             className="text-green-600 focus:ring-green-500"
                           />
                           <label htmlFor="pickup" className="ml-2 text-sm text-gray-700">
@@ -765,12 +778,12 @@ const Products = () => {
                         </div>
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-gray-700">Delivery Fee:</span>
-                          <span className="font-semibold">₹{purchaseData.deliveryOption === 'delivery' ? '50' : '0'}</span>
+                          <span className="font-semibold">₹{purchaseData.pickupPreference === 'delivery' ? '50' : '0'}</span>
                         </div>
                         <div className="border-t border-green-200 pt-2 flex justify-between items-center">
                           <span className="font-bold text-gray-900">Total Amount:</span>
                           <span className="font-bold text-green-600 text-lg">
-                            ₹{(selectedProduct.price + (purchaseData.deliveryOption === 'delivery' ? 50 : 0)).toLocaleString()}
+                            ₹{(selectedProduct.price + (purchaseData.pickupPreference === 'delivery' ? 50 : 0)).toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -781,9 +794,10 @@ const Products = () => {
                           <input
                             type="text"
                             required
-                            value={purchaseData.cardNumber}
-                            onChange={(e) => setPurchaseData({...purchaseData, cardNumber: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            name="cardNumber"
+                            value={purchaseData.cardNumber || ''}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                             placeholder="1234 5678 9012 3456"
                             maxLength="19"
                           />
@@ -795,9 +809,10 @@ const Products = () => {
                             <input
                               type="text"
                               required
-                              value={purchaseData.expiryDate}
-                              onChange={(e) => setPurchaseData({...purchaseData, expiryDate: e.target.value})}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                              name="expiryDate"
+                              value={purchaseData.expiryDate || ''}
+                              onChange={handleInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                               placeholder="MM/YY"
                               maxLength="5"
                             />
@@ -807,9 +822,10 @@ const Products = () => {
                             <input
                               type="text"
                               required
-                              value={purchaseData.cvv}
-                              onChange={(e) => setPurchaseData({...purchaseData, cvv: e.target.value})}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                              name="cvv"
+                              value={purchaseData.cvv || ''}
+                              onChange={handleInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                               placeholder="123"
                               maxLength="3"
                             />

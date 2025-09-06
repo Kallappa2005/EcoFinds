@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('./asyncHandler');
 const User = require('../models/userModel');
-const config = require('../config/config');
 
 // Protect routes
 const protect = asyncHandler(async (req, res, next) => {
@@ -28,7 +27,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
     try {
         // Verify token
-        const decoded = jwt.verify(token, config.jwtSecret);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         // Find user by id from decoded token
         req.user = await User.findById(decoded.id).select('-password');

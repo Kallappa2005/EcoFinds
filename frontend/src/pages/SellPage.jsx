@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FiUpload, FiDollarSign, FiTag, FiMapPin, FiX, FiCamera } from 'react-icons/fi'
 import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
-import { useUserData } from '../context/UserDataContext'
+import { useUserData } from '../context/userDataUtils'
 
 const SellPage = () => {
   const navigate = useNavigate()
@@ -29,6 +29,15 @@ const SellPage = () => {
   const conditions = [
     'Brand New', 'Like New', 'Good', 'Fair', 'Needs Repair'
   ]
+
+  // Form input change handler
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
 
   // Image handling functions
   const handleImageSelect = (files) => {
@@ -239,9 +248,10 @@ const SellPage = () => {
               <input
                 type="text"
                 required
+                name="title"
                 value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                 placeholder="e.g., iPhone 13 Pro Max"
               />
             </div>
@@ -254,9 +264,10 @@ const SellPage = () => {
               <input
                 type="number"
                 required
+                name="price"
                 value={formData.price}
-                onChange={(e) => setFormData({...formData, price: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
                 placeholder="2500"
               />
             </div>
@@ -271,9 +282,10 @@ const SellPage = () => {
               </label>
               <select
                 required
+                name="category"
                 value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 bg-white"
               >
                 <option value="">Select Category</option>
                 {categories.map(cat => (
@@ -288,9 +300,10 @@ const SellPage = () => {
               </label>
               <select
                 required
+                name="condition"
                 value={formData.condition}
-                onChange={(e) => setFormData({...formData, condition: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 bg-white"
               >
                 <option value="">Select Condition</option>
                 {conditions.map(condition => (
@@ -309,9 +322,10 @@ const SellPage = () => {
             <input
               type="text"
               required
+              name="location"
               value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
               placeholder="City, State"
             />
           </div>
@@ -324,9 +338,10 @@ const SellPage = () => {
             <textarea
               required
               rows={4}
+              name="description"
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
               placeholder="Describe your item, its condition, and why it's great for a sustainable lifestyle..."
             />
           </div>

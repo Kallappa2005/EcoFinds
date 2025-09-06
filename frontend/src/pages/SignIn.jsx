@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from 'react-icons/fi'
 import toast from 'react-hot-toast'
+import { useUserData } from '../context/userDataUtils'
 
 const SignIn = () => {
   const navigate = useNavigate()
@@ -13,6 +14,18 @@ const SignIn = () => {
     password: '',
     rememberMe: false
   })
+
+  const { login } = useUserData()
+  const location = useLocation()
+  const from = location.state?.from?.pathname || '/eco-dashboard'
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -26,19 +39,17 @@ const SignIn = () => {
     setIsLoading(true)
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Here you would typically make an API call to authenticate the user
-      console.log('Sign in:', formData)
+      // Call login from context
+      await login(formData.email, formData.password)
       
       toast.success('Welcome back! Redirecting to your dashboard...')
       
-      // Navigate to eco-dashboard after successful login
-      navigate('/eco-dashboard')
+      // Navigate to previous page or eco-dashboard after successful login
+      navigate(from)
       
     } catch (error) {
-      toast.error('Invalid credentials. Please try again.')
+      console.error(error)
+      toast.error(error.response?.data?.message || 'Invalid credentials. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -120,9 +131,10 @@ const SignIn = () => {
                   <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="email"
+                    name="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none"
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-gray-800"
                     placeholder="Enter your email"
                     required
                   />
@@ -139,10 +151,12 @@ const SignIn = () => {
                   <FiLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type={showPassword ? "text" : "password"}
+                    name="password"
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none"
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-gray-800"
                     placeholder="Enter your password"
+                    autoComplete="current-password"
                     required
                   />
                   <button
@@ -164,8 +178,9 @@ const SignIn = () => {
                 <label className="flex items-center">
                   <input 
                     type="checkbox" 
+                    name="rememberMe"
                     checked={formData.rememberMe}
-                    onChange={(e) => setFormData({...formData, rememberMe: e.target.checked})}
+                    onChange={handleChange}
                     className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500" 
                   />
                   <span className="ml-2 text-sm text-gray-600">Remember me</span>

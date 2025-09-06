@@ -1,14 +1,31 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { FiSearch, FiBell, FiUser, FiMenu, FiX } from 'react-icons/fi'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FiSearch, FiBell, FiUser, FiMenu, FiX, FiLogOut } from 'react-icons/fi'
 import { motion } from 'framer-motion'
+import { useUserData } from '../../context/userDataUtils'
+import toast from 'react-hot-toast'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  // Initialize with default values
+  const { isAuthenticated = false, user = null, logout = () => {} } = useUserData() || {}
 
   const isActive = (path) => location.pathname === path
   const isHomePage = location.pathname === '/'
+  
+  const handleLogout = async () => {
+    try {
+      await logout()
+      toast.success('Logged out successfully')
+      navigate('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast.error('Something went wrong during logout')
+    }
+  }
 
   return (
     <header className="bg-white shadow-lg border-b-2 border-green-100">
@@ -40,34 +57,66 @@ const Header = () => {
 
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex items-center space-x-6">
-            {isHomePage ? (
-              /* Home Page - Contact, About Us, and Auth */
+            {/* Always visible links */}
+            <Link 
+              to="/about" 
+              className="text-gray-700 hover:text-green-600 transition-colors font-medium"
+            >
+              About Us
+            </Link>
+            <Link 
+              to="/contact" 
+              className="text-gray-700 hover:text-green-600 transition-colors font-medium"
+            >
+              Contact
+            </Link>
+            <Link 
+              to="/features" 
+              className="text-gray-700 hover:text-green-600 transition-colors font-medium"
+            >
+              Features
+            </Link>
+            <Link 
+              to="/how-it-works" 
+              className="text-gray-700 hover:text-green-600 transition-colors font-medium"
+            >
+              How It Works
+            </Link>
+            
+            <div className="h-6 w-px bg-gray-300"></div>
+            
+            {isAuthenticated ? (
+              /* Authenticated navigation section */
               <>
                 <Link 
-                  to="/about" 
-                  className="text-gray-700 hover:text-green-600 transition-colors font-medium"
+                  to="/eco-dashboard" 
+                  className={`transition-colors ${
+                    isActive('/eco-dashboard') ? 'text-green-600 font-medium' : 'text-gray-700 hover:text-green-600'
+                  }`}
                 >
-                  About Us
+                  Eco Dashboard
                 </Link>
-                <Link 
-                  to="/contact" 
-                  className="text-gray-700 hover:text-green-600 transition-colors font-medium"
-                >
-                  Contact
-                </Link>
-                <Link 
-                  to="/features" 
-                  className="text-gray-700 hover:text-green-600 transition-colors font-medium"
-                >
-                  Features
-                </Link>
-                <Link 
-                  to="/how-it-works" 
-                  className="text-gray-700 hover:text-green-600 transition-colors font-medium"
-                >
-                  How It Works
-                </Link>
-                <div className="h-6 w-px bg-gray-300"></div>
+                <div className="relative">
+                  <button 
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center text-gray-700 hover:text-green-600 transition-colors"
+                  >
+                    <span className="mr-1">{user?.name || 'User'}</span>
+                    <FiUser />
+                  </button>
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                      <Link to="/profile" className="block px-4 py-2 text-gray-800 hover:bg-green-50">My Profile</Link>
+                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* Non-authenticated section */
+              <>
                 <Link 
                   to="/signin" 
                   className="text-gray-700 hover:text-green-600 transition-colors font-medium"
@@ -79,53 +128,6 @@ const Header = () => {
                   className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
                 >
                   Sign Up
-                </Link>
-              </>
-            ) : (
-              /* Other Pages - Full Navigation */
-              <>
-                <Link 
-                  to="/products" 
-                  className={`transition-colors ${
-                    isActive('/products') ? 'text-green-600 font-medium' : 'text-gray-700 hover:text-green-600'
-                  }`}
-                >
-                  Products
-                </Link>
-                <Link 
-                  to="/sell" 
-                  className={`transition-colors ${
-                    isActive('/sell') ? 'text-green-600 font-medium' : 'text-gray-700 hover:text-green-600'
-                  }`}
-                >
-                  Sell
-                </Link>
-                <Link 
-                  to="/eco-dashboard" 
-                  className={`transition-colors ${
-                    isActive('/eco-dashboard') ? 'text-green-600 font-medium' : 'text-gray-700 hover:text-green-600'
-                  }`}
-                >
-                  Eco Impact
-                </Link>
-                
-                {/* Notifications */}
-                <button className="relative p-2 text-gray-700 hover:text-green-600">
-                  <FiBell className="text-xl" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    3
-                  </span>
-                </button>
-
-                {/* Profile */}
-                <Link 
-                  to="/profile" 
-                  className={`flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors ${
-                    isActive('/profile') ? 'text-green-600' : 'text-gray-700'
-                  }`}
-                >
-                  <FiUser className="text-xl" />
-                  <span>Profile</span>
                 </Link>
               </>
             )}
@@ -218,15 +220,17 @@ const Header = () => {
                   >
                     Products
                   </Link>
-                  <Link 
-                    to="/sell" 
-                    className={`py-2 transition-colors ${
-                      isActive('/sell') ? 'text-green-600 font-medium' : 'text-gray-700'
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Sell
-                  </Link>
+                  {isAuthenticated && (
+                    <Link 
+                      to="/sell" 
+                      className={`py-2 transition-colors ${
+                        isActive('/sell') ? 'text-green-600 font-medium' : 'text-gray-700'
+                      }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sell
+                    </Link>
+                  )}
                   <Link 
                     to="/eco-dashboard" 
                     className={`py-2 transition-colors ${
