@@ -138,11 +138,19 @@ const toggleLikeProduct = async (productId, userId) => {
   return product;
 };
 
+// Get products by user
+const getProductsByUser = async (userId) => {
+  return await Product.find({ seller: userId })
+    .populate('seller', 'name email verified')
+    .sort({ createdAt: -1 });
+};
+
 module.exports = {
   calculateEcoImpact,
   createProduct,
   getAllProducts,
   getProductById,
+  getProductsByUser,
   updateProduct,
   deleteProduct,
   toggleLikeProduct

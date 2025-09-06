@@ -375,7 +375,7 @@ const EcoDashboardPage = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">My Purchases</h2>
                 <button 
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => window.location.href = '/products'}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Browse More Items
@@ -388,7 +388,7 @@ const EcoDashboardPage = () => {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No purchases yet</h3>
                   <p className="text-gray-600 mb-6">Start shopping sustainably and track your positive environmental impact!</p>
                   <button 
-                    onClick={() => window.location.href = '/'}
+                    onClick={() => window.location.href = '/products'}
                     className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     Start Shopping

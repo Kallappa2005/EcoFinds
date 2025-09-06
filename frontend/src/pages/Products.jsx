@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FiSearch, FiFilter, FiGrid, FiList, FiMapPin, FiUser, FiCalendar, FiHeart, FiShoppingCart, FiEye, FiStar, FiX } from 'react-icons/fi'
 import { useUserData } from '../context/userDataUtils'
 import { toast } from 'react-hot-toast'
+import { productAPI } from '../services/api'
 
 const Products = () => {
-  const { addPurchasedProduct, calculateEcoImpact } = useUserData()
+  const { addPurchasedProduct } = useUserData()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedCondition, setSelectedCondition] = useState('All')
@@ -15,6 +16,8 @@ const Products = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showPurchaseModal, setShowPurchaseModal] = useState(false)
+  const [allProducts, setAllProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [purchaseData, setPurchaseData] = useState({
     fullName: '',
     email: '',
@@ -29,129 +32,26 @@ const Products = () => {
     pickupPreference: 'delivery'
   })
 
-  // Mock products data - in real app, this would come from API
-  const [allProducts] = useState([
-    {
-      id: 1,
-      title: "MacBook Air M2 - 2022",
-      description: "Excellent condition MacBook Air with M2 chip. Barely used, perfect for students or professionals.",
-      price: 85000,
-      originalPrice: 120000,
-      category: "Electronics",
-      condition: "Like New",
-      location: "Mumbai, Maharashtra",
-      seller: {
-        name: "TechGuru",
-        rating: 4.8,
-        verified: true
-      },
-      images: ["📱"],
-      datePosted: "2024-09-01",
-      views: 125,
-      likes: 23,
-      ecoImpact: { co2Saved: 180, waterSaved: 1500 }
-    },
-    {
-      id: 2,
-      title: "Designer Leather Handbag - Prada",
-      description: "Authentic Prada leather handbag in excellent condition. Classic design that never goes out of style.",
-      price: 15000,
-      originalPrice: 35000,
-      category: "Fashion",
-      condition: "Good",
-      location: "Delhi, Delhi",
-      seller: {
-        name: "FashionQueen",
-        rating: 4.9,
-        verified: true
-      },
-      images: ["👜"],
-      datePosted: "2024-09-02",
-      views: 89,
-      likes: 15,
-      ecoImpact: { co2Saved: 25, waterSaved: 2000 }
-    },
-    {
-      id: 3,
-      title: "Mountain Bike - Trek 2021",
-      description: "Well-maintained Trek mountain bike. Perfect for weekend adventures and daily commutes.",
-      price: 25000,
-      originalPrice: 45000,
-      category: "Sports",
-      condition: "Good",
-      location: "Bangalore, Karnataka",
-      seller: {
-        name: "BikeRider",
-        rating: 4.7,
-        verified: false
-      },
-      images: ["🚴"],
-      datePosted: "2024-09-03",
-      views: 67,
-      likes: 12,
-      ecoImpact: { co2Saved: 45, waterSaved: 300 }
-    },
-    {
-      id: 4,
-      title: "Gaming Setup - RTX 3080 PC",
-      description: "Complete gaming setup with RTX 3080, i7 processor, 32GB RAM. Includes monitor and peripherals.",
-      price: 120000,
-      originalPrice: 200000,
-      category: "Electronics",
-      condition: "Like New",
-      location: "Pune, Maharashtra",
-      seller: {
-        name: "GamerPro",
-        rating: 4.6,
-        verified: true
-      },
-      images: ["🖥️"],
-      datePosted: "2024-09-04",
-      views: 234,
-      likes: 45,
-      ecoImpact: { co2Saved: 300, waterSaved: 2500 }
-    },
-    {
-      id: 5,
-      title: "Vintage Wooden Dining Table",
-      description: "Beautiful vintage wooden dining table that seats 6. Solid wood construction with minor wear.",
-      price: 18000,
-      originalPrice: 35000,
-      category: "Furniture",
-      condition: "Fair",
-      location: "Chennai, Tamil Nadu",
-      seller: {
-        name: "VintageCollector",
-        rating: 4.5,
-        verified: true
-      },
-      images: ["🪑"],
-      datePosted: "2024-09-05",
-      views: 78,
-      likes: 9,
-      ecoImpact: { co2Saved: 60, waterSaved: 400 }
-    },
-    {
-      id: 6,
-      title: "Canon DSLR Camera Kit",
-      description: "Canon EOS 80D with 18-55mm lens, battery grip, and camera bag. Great for photography enthusiasts.",
-      price: 45000,
-      originalPrice: 80000,
-      category: "Electronics",
-      condition: "Good",
-      location: "Hyderabad, Telangana",
-      seller: {
-        name: "PhotoPro",
-        rating: 4.8,
-        verified: true
-      },
-      images: ["📷"],
-      datePosted: "2024-09-06",
-      views: 156,
-      likes: 28,
-      ecoImpact: { co2Saved: 120, waterSaved: 800 }
+  // Load products from API
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setIsLoading(true)
+        const response = await productAPI.getProducts()
+        setAllProducts(response.data.data.map(product => ({
+          ...product,
+          id: product._id
+        })))
+      } catch (error) {
+        console.error('Failed to load products:', error)
+        toast.error('Failed to load products')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ])
+
+    loadProducts()
+  }, [])
 
   const categories = ['All', 'Electronics', 'Fashion', 'Sports', 'Furniture', 'Books', 'Home & Garden', 'Toys', 'Other']
   const conditions = ['All', 'Brand New', 'Like New', 'Good', 'Fair', 'Needs Repair']
@@ -207,39 +107,48 @@ const Products = () => {
     setShowPurchaseModal(true)
   }
 
-  const handlePurchaseSubmit = (e) => {
+  const handlePurchaseSubmit = async (e) => {
     e.preventDefault()
     
-    // Add to purchased products
-    addPurchasedProduct(selectedProduct)
-    
-    // Show success message
-    toast.success(
-      `🎉 Purchase Successful!\nYou saved ${selectedProduct.ecoImpact.co2Saved}kg CO₂ and ${selectedProduct.ecoImpact.waterSaved}L water!`,
-      { duration: 4000 }
-    )
-    
-    // Close modal and reset
-    setShowPurchaseModal(false)
-    setSelectedProduct(null)
-    setPurchaseData({
-      fullName: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      pincode: '',
-      paymentMethod: 'card',
-      cardNumber: '',
-      expiryDate: '',
-      cvv: '',
-      pickupPreference: 'delivery'
-    })
-    
-    // Navigate to eco dashboard after delay
-    setTimeout(() => {
-      window.location.href = '/eco-dashboard'
-    }, 2000)
+    try {
+      // Add to purchased products with correct parameters
+      await addPurchasedProduct(
+        selectedProduct.id, 
+        purchaseData.pickupPreference,
+        purchaseData.address
+      )
+      
+      // Show success message
+      toast.success(
+        `🎉 Purchase Successful!\nYou saved ${selectedProduct.ecoImpact.co2Saved}kg CO₂ and ${selectedProduct.ecoImpact.waterSaved}L water!`,
+        { duration: 4000 }
+      )
+      
+      // Close modal and reset
+      setShowPurchaseModal(false)
+      setSelectedProduct(null)
+      setPurchaseData({
+        fullName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        pincode: '',
+        paymentMethod: 'card',
+        cardNumber: '',
+        expiryDate: '',
+        cvv: '',
+        pickupPreference: 'delivery'
+      })
+      
+      // Navigate to eco dashboard after delay
+      setTimeout(() => {
+        window.location.href = '/eco-dashboard'
+      }, 2000)
+    } catch (error) {
+      console.error('Purchase failed:', error)
+      toast.error('Purchase failed. Please try again.')
+    }
   }
 
   const formatDate = (dateString) => {
@@ -400,7 +309,12 @@ const Products = () => {
 
       {/* Products Grid/List */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {filteredProducts.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading products...</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>

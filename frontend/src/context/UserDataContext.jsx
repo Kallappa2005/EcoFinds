@@ -62,20 +62,19 @@ export const UserDataProvider = ({ children }) => {
   // Load user data from API
   const loadUserData = async () => {
     try {
-      // Get user profile and eco stats
-      const [statsRes, purchasesRes, salesRes] = await Promise.all([
+      // Get user profile, eco stats, purchases, and user products
+      const [statsRes, purchasesRes, userProductsRes] = await Promise.all([
         userAPI.getEcoStats(),
         transactionAPI.getPurchases(),
-        transactionAPI.getSales()
+        productAPI.getUserProducts()
       ]);
 
       setUserData({
-        soldProducts: salesRes.data.data.map(sale => ({
-          ...sale.product,
-          id: sale.product._id,
-          dateListed: sale.createdAt,
-          status: sale.status,
-          buyer: sale.buyer
+        soldProducts: userProductsRes.data.data.map(product => ({
+          ...product,
+          id: product._id,
+          dateListed: product.createdAt,
+          status: 'active', // Default status for user products
         })),
         purchasedProducts: purchasesRes.data.data.map(purchase => ({
           ...purchase.product,

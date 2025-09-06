@@ -3,6 +3,7 @@ const {
   createProduct, 
   getProducts, 
   getProduct,
+  getUserProducts,
   updateProduct,
   deleteProduct,
   toggleLikeProduct
@@ -14,6 +15,8 @@ const router = express.Router();
 router.route('/')
   .get(getProducts)
   .post(protect, createProduct);
+
+router.get('/user/me', protect, getUserProducts);
 
 router.route('/:id')
   .get(getProduct)

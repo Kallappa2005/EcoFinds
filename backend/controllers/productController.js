@@ -97,6 +97,19 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc    Get products by user
+// @route   GET /api/v1/products/user/me
+// @access  Private
+exports.getUserProducts = asyncHandler(async (req, res, next) => {
+  const products = await productService.getProductsByUser(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    count: products.length,
+    data: products
+  });
+});
+
 // @desc    Like/unlike a product
 // @route   PUT /api/v1/products/:id/like
 // @access  Private
