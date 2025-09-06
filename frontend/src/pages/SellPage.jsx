@@ -22,12 +22,12 @@ const SellPage = () => {
   })
 
   const categories = [
-    'Electronics', 'Clothing', 'Furniture', 'Books', 
+    'Electronics', 'Clothing', 'Fashion', 'Furniture', 'Books', 
     'Sports', 'Home & Garden', 'Toys', 'Other'
   ]
 
   const conditions = [
-    'Brand New', 'Like New', 'Good', 'Fair', 'Needs Repair'
+    'New', 'Like New', 'Good', 'Fair', 'Poor'
   ]
 
   // Form input change handler

@@ -11,10 +11,12 @@ const calculateEcoImpact = (product) => {
   const categoryImpact = {
     'Electronics': { co2: 100, water: 1000 },
     'Clothing': { co2: 25, water: 2500 },
+    'Fashion': { co2: 25, water: 2500 },
     'Furniture': { co2: 60, water: 500 },
     'Books': { co2: 10, water: 300 },
     'Sports': { co2: 30, water: 400 },
     'Home & Garden': { co2: 20, water: 600 },
+    'Toys': { co2: 15, water: 250 },
     'Other': { co2: 15, water: 350 }
   };
 

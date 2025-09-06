@@ -53,8 +53,8 @@ const Products = () => {
     loadProducts()
   }, [])
 
-  const categories = ['All', 'Electronics', 'Fashion', 'Sports', 'Furniture', 'Books', 'Home & Garden', 'Toys', 'Other']
-  const conditions = ['All', 'Brand New', 'Like New', 'Good', 'Fair', 'Needs Repair']
+  const categories = ['All', 'Electronics', 'Clothing', 'Fashion', 'Sports', 'Furniture', 'Books', 'Home & Garden', 'Toys', 'Other']
+  const conditions = ['All', 'New', 'Like New', 'Good', 'Fair', 'Poor']
   const sortOptions = [
     { value: 'newest', label: 'Newest First' },
     { value: 'oldest', label: 'Oldest First' },
